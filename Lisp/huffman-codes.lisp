@@ -130,6 +130,12 @@
               (cons symbol (get-symbol-encoding symbol huffman-tree)))
             symbols)))
 
+;; Ritorna una lista di bit che rappresentano la codifica del messaggio
+(defun hucodec-encode (message huffman-tree)
+  (mapcar (lambda (symbol)
+            (get-symbol-encoding symbol huffman-tree))
+          message))
+
 ; (defparameter sw (list (cons 'a 8) (cons 'b 3) (cons 'c 1) (cons 'd 1) (cons 'e 1) (cons 'f 1) (cons 'g 1) (cons 'h 1)))
 
 ; (defparameter nodes (sw-list-to-nodes sw))
