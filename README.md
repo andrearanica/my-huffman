@@ -1,1 +1,1 @@
-# my-huffman
+# Huffman
