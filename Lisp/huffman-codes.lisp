@@ -147,7 +147,8 @@
 (defun read-list-from (input-stream)
   (let ((char (read-char input-stream nil 'eof)))
     (unless (eq char 'eof)
-      (cons (string char) (read-list-from input-stream)))))
+      (cons (if (char= char #\NewLine) "\\n" (string char))
+            (read-list-from input-stream)))))
 
 ;; Ritorna il contenuto di un file come lista di simboli
 (defun get-file-content-list (filename)
@@ -160,6 +161,6 @@
     (hucodec-encode file-content-list huffman-tree)))
 
 ; (defparameter sw (list (cons 'a 8) (cons 'b 3) (cons 'c 1) (cons 'd 1) (cons 'e 1) (cons 'f 1) (cons 'g 1) (cons 'h 1)))
-; (defparameter sw (list (cons "a" 8) (cons "b" 3) (cons "c" 1) (cons "d" 1) (cons "e" 1) (cons "f" 1) (cons "g" 1) (cons "h" 1)))
-; (defparameter HT (hucodec-generate-huffman-tree sw))
+(defparameter sw (list (cons "a" 8) (cons "b" 3) (cons "c" 1) (cons "d" 1) (cons "e" 1) (cons "f" 1) (cons "g" 1) (cons "\\n" 1)))
+(defparameter HT (hucodec-generate-huffman-tree sw))
 
