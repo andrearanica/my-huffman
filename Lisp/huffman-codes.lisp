@@ -48,7 +48,7 @@
 
 ;; Converte una cons simbolo-peso in un nodo foglia
 (defun sw-to-node (sw)
-  (create-node (cons (car sw) nil) (cdr sw)))
+  (create-node (car sw) (cdr sw)))
 
 ;; Converte una lista di cons simbolo-peso in nodi foglie
 (defun sw-list-to-nodes (sw-list)
@@ -112,15 +112,26 @@
 (defun choose-encoding-branch (symbol huffman-tree)
   (let ((left-tree (node-left huffman-tree))
         (right-tree (node-right huffman-tree)))
-    (cond ((and left-tree (is-item-in-list symbol (node-symbol left-tree))) 0)
-          ((and right-tree (is-item-in-list symbol (node-symbol right-tree))) 1)
-          (t (error (format t "Error: symbol ~A is not defined" symbol))))))
+    (let ((left-tree-symbol-list 
+           (if (listp (node-symbol left-tree)) 
+               (node-symbol left-tree)
+             (list (node-symbol left-tree))))
+          (right-tree-symbol-list
+           (if (listp (node-symbol right-tree))
+               (node-symbol right-tree)
+             (list (node-symbol right-tree)))))
+      (cond ((and left-tree 
+                  (is-item-in-list symbol left-tree-symbol-list))
+             0)
+            ((and right-tree 
+                  (is-item-in-list symbol right-tree-symbol-list)) 1)
+            (t (error (format t "Error: symbol ~A is not defined" symbol)))))))
 
 ;; Restituisce la lista che contiene la codifica del carattere fornito 
 ;; nell'albero di Huffman
 (defun get-symbol-encoding (symbol huffman-tree)
   (cond ((null huffman-tree) nil)
-        ((equal (node-symbol huffman-tree) (cons symbol nil)) nil)
+        ((equal (node-symbol huffman-tree) symbol) nil)
         (t
          (let ((new-branch (choose-encoding-branch symbol huffman-tree)))
            (if (= new-branch 1)
@@ -144,9 +155,9 @@
 
 ;; Ritorna una lista di bit che rappresentano la codifica del messaggio
 (defun hucodec-encode (message huffman-tree)
-  (mapcar (lambda (symbol)
-            (get-symbol-encoding symbol huffman-tree))
-          message))
+  (cond ((null message) nil)
+        (t (append (get-symbol-encoding (car message) huffman-tree)
+                (hucodec-encode (cdr message) huffman-tree)))))
 
 ;; Ritorna una lista che contiene il contenuto dello stream passato
 (defun read-list-from (input-stream)
@@ -190,4 +201,5 @@
 (defparameter sw (list (cons 'a 8) (cons 'b 3) (cons 'c 1) (cons 'd 1) (cons 'e 1) (cons 'f 1) (cons 'g 1) (cons 'h 1)))
 ; (defparameter sw (list (cons "a" 8) (cons "b" 3) (cons "c" 1) (cons "d" 1) (cons "e" 1) (cons "f" 1) (cons "g" 1) (cons "\\n" 1)))
 (defparameter HT (hucodec-generate-huffman-tree sw))
+(defparameter MESSAGE '(A B C A))
 
