@@ -209,14 +209,15 @@ read_stream(Stream, '') :-
 %%% Predicato che decodifica una lista di bit nei corrispondenti simboli all'
 %%% interno dell'albero fornito
 
-hucodec_decode(Bits, Tree, Symbols) :-
-    bits_to_symbols(Bits, Tree, Symbols, Tree).
+hucodec_decode(Bits, Tree, SymbolsList) :-
+    bits_to_symbols(Bits, Tree, Symbols, Tree),
+    atom_chars(Symbols, SymbolsList).
 
 %%% bits_to_symbols / 4
 %%% Predicato che converte una lista di bit nei corrispondenti simboli, avendo
 %%% sia il nodo corrente in cui cercare sia la radice dell'intero albero
 
-bits_to_symbols([], Root, '', Root).
+bits_to_symbols([], Root, '', Root) :- !.
 bits_to_symbols(Bits, node(Symbol, _, void, void), Symbols, Root) :-
     !,
     bits_to_symbols(Bits, Root, OtherSymbols, Root),

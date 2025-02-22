@@ -142,22 +142,28 @@
 (defun get-symbols-from-huffman-tree (huffman-tree)
   (cond ((null huffman-tree) nil)
         ((and (null (node-left huffman-tree)) (null (node-right huffman-tree)))
-         (node-symbol huffman-tree))
+         (cons (node-symbol huffman-tree) nil))
         (t (append (get-symbols-from-huffman-tree (node-left huffman-tree))
                    (get-symbols-from-huffman-tree (node-right huffman-tree))))))
 
-;; Ritorna una lista di coppie simbolo-codifica
+;; Ritorna una lista di coppie simbolo-codifica di un albero di Huffman
 (defun hucodec-generate-symbol-bits-table (huffman-tree)
   (let ((symbols (get-symbols-from-huffman-tree huffman-tree)))
-    (mapcar (lambda (symbol)
-              (cons symbol (get-symbol-encoding symbol huffman-tree)))
-            symbols)))
+    (generate-symbol-bits-table symbols huffman-tree)))
+
+;; Ritorna una lista di coppie simbolo-codifica per ogni simbolo passato
+(defun generate-symbol-bits-table (symbols huffman-tree)
+  (if (null symbols)
+      nil
+    (cons (list (car symbols)
+                (get-symbol-encoding (car symbols) huffman-tree))
+          (generate-symbol-bits-table (cdr symbols) huffman-tree))))
 
 ;; Ritorna una lista di bit che rappresentano la codifica del messaggio
 (defun hucodec-encode (message huffman-tree)
   (cond ((null message) nil)
         (t (append (get-symbol-encoding (car message) huffman-tree)
-                (hucodec-encode (cdr message) huffman-tree)))))
+                   (hucodec-encode (cdr message) huffman-tree)))))
 
 ;; Ritorna una lista che contiene il contenuto dello stream passato
 (defun read-list-from (input-stream)
