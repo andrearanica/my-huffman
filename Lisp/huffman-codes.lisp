@@ -96,13 +96,20 @@
 (defun hucodec-print-huffman-tree (tree)
   (print-node tree ""))
 
+;; Ritorna se l'elemento � presente nella lista (analogo a member
+;; ma funziona anche per le stringhe)
+(defun is-item-in-list (item list)
+  (cond ((null list) nil)
+        ((equal item (car list)) t)
+        (t (is-item-in-list item (cdr list)))))
+
 ;; Ritorna quale sottoalbero considerare per codificare un carattere
 (defun choose-encoding-branch (symbol huffman-tree)
   (let ((left-tree (node-left huffman-tree))
         (right-tree (node-right huffman-tree)))
-    (cond ((and left-tree (member symbol (node-symbol left-tree))) 0)
-          ((and right-tree (member symbol (node-symbol right-tree))) 1)
-          (t nil))))
+    (cond ((and left-tree (is-item-in-list symbol (node-symbol left-tree))) 0)
+          ((and right-tree (is-item-in-list symbol (node-symbol right-tree))) 1)
+          (t (error (format t "Error: symbol ~A is not defined" symbol))))))
 
 ;; Restituisce la lista che contiene la codifica del carattere fornito 
 ;; nell'albero di Huffman
@@ -136,7 +143,23 @@
             (get-symbol-encoding symbol huffman-tree))
           message))
 
-; (defparameter sw (list (cons 'a 8) (cons 'b 3) (cons 'c 1) (cons 'd 1) (cons 'e 1) (cons 'f 1) (cons 'g 1) (cons 'h 1)))
+;; Ritorna una lista che contiene il contenuto dello stream passato
+(defun read-list-from (input-stream)
+  (let ((char (read-char input-stream nil 'eof)))
+    (unless (eq char 'eof)
+      (cons (string char) (read-list-from input-stream)))))
 
-; (defparameter nodes (sw-list-to-nodes sw))
+;; Ritorna il contenuto di un file come lista di simboli
+(defun get-file-content-list (filename)
+  (with-open-file (in filename :direction :input)
+    (read-list-from in)))
+
+;; Ritorna la lista di bit che rappresentano la codifica del file
+(defun hucodec-encode-file (filename huffman-tree)
+  (let ((file-content-list (get-file-content-list filename)))
+    (hucodec-encode file-content-list huffman-tree)))
+
+; (defparameter sw (list (cons 'a 8) (cons 'b 3) (cons 'c 1) (cons 'd 1) (cons 'e 1) (cons 'f 1) (cons 'g 1) (cons 'h 1)))
+; (defparameter sw (list (cons "a" 8) (cons "b" 3) (cons "c" 1) (cons "d" 1) (cons "e" 1) (cons "f" 1) (cons "g" 1) (cons "h" 1)))
+; (defparameter HT (hucodec-generate-huffman-tree sw))
 
