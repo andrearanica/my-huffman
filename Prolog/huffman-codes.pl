@@ -1,5 +1,7 @@
 %%%% -*- Mode: Prolog -*-
 
+%%% 909424 Ranica Andrea
+
 %%% hucodec_generate_huffman_tree / 2
 %%% Predicato che genera un albero di Huffman prendendo in input una lista di
 %%% coppie simbolo-peso
@@ -185,9 +187,10 @@ hucodec_encode_file(FileName, Tree, EncodedFile) :-
 %%% file_content / 2
 %%% Predicato che restituisce il contenuto del file passato come primo parametro
 
-file_content(FileName, FileContent) :-
+file_content(FileName, ListFileContent) :-
     open(FileName, read, Stream),
     read_stream(Stream, FileContent),
+    atom_chars(FileContent, ListFileContent),
     close(Stream).
 
 %%% read_file / 2
@@ -196,9 +199,9 @@ file_content(FileName, FileContent) :-
 read_stream(Stream, Content) :-
     \+ at_end_of_stream(Stream),
     !,
-    read_line_to_string(Stream, X),
-    read_stream(Stream, Xs),
-    atom_concat(X, Xs, Content).
+    get_char(Stream, Char),
+    read_stream(Stream, OtherChars),
+    atom_concat(Char, OtherChars, Content).
 read_stream(Stream, '') :- 
     at_end_of_stream(Stream).
 

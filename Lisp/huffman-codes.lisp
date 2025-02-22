@@ -20,6 +20,11 @@
                (node-left node)
                (node-right node)))
 
+;; Ritorna true se il nodo è una foglia
+(defun leaf-p (node)
+  (and (null (node-left node))
+       (null (node-right node))))
+
 ;; Restituisce T se un il primo nodo ha un peso inferiore del secondo
 (defun compare-nodes (first-node second-node)
   (< (node-weight first-node) (node-weight second-node)))
@@ -160,7 +165,29 @@
   (let ((file-content-list (get-file-content-list filename)))
     (hucodec-encode file-content-list huffman-tree)))
 
-; (defparameter sw (list (cons 'a 8) (cons 'b 3) (cons 'c 1) (cons 'd 1) (cons 'e 1) (cons 'f 1) (cons 'g 1) (cons 'h 1)))
-(defparameter sw (list (cons "a" 8) (cons "b" 3) (cons "c" 1) (cons "d" 1) (cons "e" 1) (cons "f" 1) (cons "g" 1) (cons "\\n" 1)))
+;; Ritorna una lista che rappresenta la stringa codificata dai bit passati
+(defun hucodec-decode (bits huffman-tree)
+  (bits-to-symbols bits huffman-tree huffman-tree))
+
+;; Converte la lista di bit nei simboli corrispondenti, ritornando ricorsivamente
+;; alla radice quando finisce in una foglia
+(defun bits-to-symbols (bits node root)
+  (cond ((and (leaf-p node) (null bits))
+         (cons (node-symbol node) nil))
+        ((leaf-p node) 
+         (cons (node-symbol node) (bits-to-symbols bits root root)))
+        ((null bits) (error "Given encoding is not complete"))
+        (t 
+         (let ((next-branch (choose-branch (car bits) node)))
+           (bits-to-symbols (cdr bits) next-branch root)))))
+
+;; Ritorna quale figlio del nodo seguire per continuare la decodifica
+(defun choose-branch (bit node)
+  (cond ((= 0 bit) (node-left node))
+        ((= 1 bit) (node-right node))
+        (t (error "Bit not valid in given encoding"))))
+
+(defparameter sw (list (cons 'a 8) (cons 'b 3) (cons 'c 1) (cons 'd 1) (cons 'e 1) (cons 'f 1) (cons 'g 1) (cons 'h 1)))
+; (defparameter sw (list (cons "a" 8) (cons "b" 3) (cons "c" 1) (cons "d" 1) (cons "e" 1) (cons "f" 1) (cons "g" 1) (cons "\\n" 1)))
 (defparameter HT (hucodec-generate-huffman-tree sw))
 
