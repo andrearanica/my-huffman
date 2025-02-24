@@ -20,7 +20,7 @@
                (node-left node)
                (node-right node)))
 
-;; Ritorna true se il nodo è una foglia
+;; Ritorna true se il nodo e' una foglia
 (defun leaf-p (node)
   (and (null (node-left node))
        (null (node-right node))))
@@ -90,7 +90,8 @@
              (let ((merged (merge-two-nodes 
                             (car sorted-nodes)
                             (cadr sorted-nodes))))
-                   (merge-nodes (cons merged (cddr sorted-nodes))))))))
+               (merge-nodes (cons merged (cddr sorted-nodes))))))))
+
 
 ;; Genera l'albero di Huffman per la lista di cons simbolo-peso fornita
 (defun hucodec-generate-huffman-tree (sw-list)
@@ -101,7 +102,7 @@
 (defun hucodec-print-huffman-tree (tree)
   (print-node tree ""))
 
-;; Ritorna se l'elemento ï¿½ presente nella lista (analogo a member
+;; Ritorna se l'elemento e' presente nella lista (analogo a member
 ;; ma funziona anche per le stringhe)
 (defun is-item-in-list (item list)
   (cond ((null list) nil)
@@ -125,7 +126,8 @@
              0)
             ((and right-tree 
                   (is-item-in-list symbol right-tree-symbol-list)) 1)
-            (t (error (format t "Error: symbol ~A is not defined" symbol)))))))
+            (t (error "Symbol ~A is not defined in tree"
+                              symbol))))))
 
 ;; Restituisce la lista che contiene la codifica del carattere fornito 
 ;; nell'albero di Huffman
@@ -162,6 +164,8 @@
 ;; Ritorna una lista di bit che rappresentano la codifica del messaggio
 (defun hucodec-encode (message huffman-tree)
   (cond ((null message) nil)
+        ((not (listp message)) (error 
+                                "hucodec-encode argument must a be a list"))
         (t (append (get-symbol-encoding (car message) huffman-tree)
                    (hucodec-encode (cdr message) huffman-tree)))))
 
@@ -184,10 +188,12 @@
 
 ;; Ritorna una lista che rappresenta la stringa codificata dai bit passati
 (defun hucodec-decode (bits huffman-tree)
-  (bits-to-symbols bits huffman-tree huffman-tree))
+  (cond ((null bits) nil)
+        ((not (listp bits)) (error "hucodec-decode argument must be a list"))
+        (t (bits-to-symbols bits huffman-tree huffman-tree))))
 
-;; Converte la lista di bit nei simboli corrispondenti, ritornando ricorsivamente
-;; alla radice quando finisce in una foglia
+;; Converte la lista di bit nei simboli corrispondenti, ritornando 
+;; ricorsivamente alla radice quando finisce in una foglia
 (defun bits-to-symbols (bits node root)
   (cond ((and (leaf-p node) (null bits))
          (cons (node-symbol node) nil))
@@ -204,8 +210,16 @@
         ((= 1 bit) (node-right node))
         (t (error "Bit not valid in given encoding"))))
 
-(defparameter sw (list (cons 'a 8) (cons 'b 3) (cons 'c 1) (cons 'd 1) (cons 'e 1) (cons 'f 1) (cons 'g 1) (cons 'h 1)))
-; (defparameter sw (list (cons "a" 8) (cons "b" 3) (cons "c" 1) (cons "d" 1) (cons "e" 1) (cons "f" 1) (cons "g" 1) (cons "\\n" 1)))
+; TODO rimuovi queste righe servono per i test
+; (defparameter sw (list (cons 'a 8) (cons 'b 3) (cons 'c 1) 
+;                        (cons 'd 1) (cons 'e 1) (cons 'f 1) 
+;                        (cons 'g 1) (cons 'h 1)))
+; (defparameter sw (list (cons "a" 8) (cons "b" 3) (cons "c" 1) 
+;                        (cons "d" 1) (cons "e" 1) (cons "f" 1) 
+;                        (cons "g" 1) (cons "\\n" 1)))
+(defparameter sw (list (cons (cons 'a nil) 8) (cons 'b 3) (cons 'c 1) 
+                       (cons 'd 1) (cons 'e 1) (cons 'f 1) 
+                       (cons 'g 1) (cons 'h 1)))
 (defparameter HT (hucodec-generate-huffman-tree sw))
 (defparameter MESSAGE '(A B C A))
 

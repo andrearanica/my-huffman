@@ -263,3 +263,22 @@ merge([node(X, N, XLeft, XRight) | T1], [node(Y, M, YLeft, YRight) | T2],
     N > M,
     merge([node(X, N, XLeft, XRight) | T1], T2, T),
     !.
+
+%%% symbols_n_weights / 1
+%%% Predicato che definisce dei simboli con i relativi pesi da usare come tests
+
+symbols_n_weights([
+    sw(a, 8),
+    sw(b, 3),
+    sw(c, 1),
+    sw(d, 1),
+    sw(e, 1),
+    sw(f, 1),
+    sw(g, 1),
+    sw([h], 1)
+]).
+
+%%% message / 1
+%%% Predicato che definisce dei messaggi di prova da usare come test
+
+message([a, b, c]).
