@@ -62,43 +62,46 @@ min(X, Y, Y) :-
 %%% figli sinistri e destri
 
 merge_two_nodes(FirstNode, SecondNode, MergedNode) :-
-    FirstNode = node(FirstNodeName, FirstNodeWeight, _, _),
-    SecondNode = node(SecondNodeName, SecondNodeWeight, _, _),
+    FirstNode = node(_, FirstNodeWeight, _, _),
+    SecondNode = node(_, SecondNodeWeight, _, _),
     MergedNodeWeight is FirstNodeWeight + SecondNodeWeight,
-    merge_nodes_names(FirstNodeName, SecondNodeName, MergedNodeName),
+    merge_nodes_names(FirstNode, SecondNode, MergedNodeName),
     MergedNode = node(MergedNodeName, MergedNodeWeight, FirstNode, SecondNode).
 
-%%% merge_nodes_names / 3
+%%% merged_node_name / 3
 %%% Predicato che prende due simboli e li unisce in una lista che li contiene
 %%% entrambi, sia che siano atomi che liste
 
-merge_nodes_names(X, Y, Z) :-
-    atom(X),
-    atom(Y),
-    !,
-    Z = [X, Y].
-merge_nodes_names(X, Y, Z) :-
-    atom(X),
-    is_list(Y),
-    !,
-    append([X], Y, Z).
-merge_nodes_names(X, Y, Z) :-
-    is_list(X),
-    atom(Y),
-    !,
-    append(X, [Y], Z).
-merge_nodes_names([], [X], [X]).
-merge_nodes_names(X, Y, Z) :-
-    is_list(X),
-    is_list(Y),
-    !,
-    append(X, Y, Z).
+merge_nodes_names(FirstNode, SecondNode, MergedNodeName) :-
+    FirstNode = node(FirstNodeName, _, void, void),
+    SecondNode = node(SecondNodeName, _, void, void),
+    append([FirstNodeName], [SecondNodeName], MergedNodeName).
+
+merge_nodes_names(FirstNode, SecondNode, MergedNodeName) :-
+    FirstNode = node(FirstNodeName, _, void, void),
+    SecondNode = node(SecondNodeName, _, _, _),
+    append([FirstNodeName], SecondNodeName, MergedNodeName).
+
+merge_nodes_names(FirstNode, SecondNode, MergedNodeName) :-
+    FirstNode = node(FirstNodeName, _, _, _),
+    SecondNode = node(SecondNodeName, _, void, void),
+    append(FirstNodeName, [SecondNodeName], MergedNodeName).
+
+merge_nodes_names(FirstNode, SecondNode, MergedNodeName) :-
+    FirstNode = node(FirstNodeName, _, _, _),
+    SecondNode = node(SecondNodeName, _, _, _),
+    MergedNodeName = [FirstNodeName, SecondNodeName].
 
 %%% node / 4
 %%% Predicato che rappresenta un nodo con simbolo, peso, sottoalbero sinistro e
 %%% sottoalbero destro
 
 node(_, _, void, void).
+
+%%% is_leaf / 1
+
+is_leaf(Node) :-
+    Node = node(_, _, void, void).
 
 %%% print_node / 2
 %%% Predicato ausiliario per stampare un singolo nodo con una precisa
@@ -133,8 +136,9 @@ hucodec_generate_symbol_bits_table(Tree, SymbolBitsTable) :-
 %%% tree_to_symbols / 2
 %%% Predicato che restituisce la lista di simboli da cui è composto un albero
 
-tree_to_symbols(node(Symbol, _, void, void), [Symbol]).
+tree_to_symbols(node(Symbol, _, void, void), [Symbol]) :- !.
 tree_to_symbols(node(_, _, Left, Right), Symbols) :-
+    !,
     tree_to_symbols(Left, LeftSymbols),
     tree_to_symbols(Right, RightSymbols),
     append(LeftSymbols, RightSymbols, Symbols).
@@ -143,6 +147,7 @@ tree_to_symbols(node(_, _, Left, Right), Symbols) :-
 %%% Predicato che converte una lista di simboli in istanze di sb nell'albero
 
 symbols_to_symbols_table([S], Tree, [sb(S, Bits)]) :-
+    !,
     symbol_to_bits_in_tree(S, Tree, Bits).
 symbols_to_symbols_table([S | Ss], Tree, [sb(S, Bits) | Sbs]) :-
     symbol_to_bits_in_tree(S, Tree, Bits),
@@ -209,19 +214,18 @@ read_stream(Stream, '') :-
 %%% Predicato che decodifica una lista di bit nei corrispondenti simboli all'
 %%% interno dell'albero fornito
 
-hucodec_decode(Bits, Tree, SymbolsList) :-
-    bits_to_symbols(Bits, Tree, Symbols, Tree),
-    atom_chars(Symbols, SymbolsList).
+hucodec_decode(Bits, Tree, Symbols) :-
+    bits_to_symbols(Bits, Tree, Symbols, Tree).
 
 %%% bits_to_symbols / 4
 %%% Predicato che converte una lista di bit nei corrispondenti simboli, avendo
 %%% sia il nodo corrente in cui cercare sia la radice dell'intero albero
 
-bits_to_symbols([], Root, '', Root) :- !.
+bits_to_symbols([], Root, [], Root) :- !.
 bits_to_symbols(Bits, node(Symbol, _, void, void), Symbols, Root) :-
     !,
     bits_to_symbols(Bits, Root, OtherSymbols, Root),
-    atom_concat(Symbol, OtherSymbols, Symbols).
+    append([Symbol], OtherSymbols, Symbols).
 bits_to_symbols([0 | Bits], node(_, _, Left, _), Symbols, Root) :-
     !,
     bits_to_symbols(Bits, Left, Symbols, Root).
@@ -268,7 +272,7 @@ merge([node(X, N, XLeft, XRight) | T1], [node(Y, M, YLeft, YRight) | T2],
 %%% Predicato che definisce dei simboli con i relativi pesi da usare come tests
 
 symbols_n_weights([
-    sw(a, 8),
+    sw([a], 8),
     sw(b, 3),
     sw(c, 1),
     sw(d, 1),

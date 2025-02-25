@@ -75,11 +75,13 @@
 (defun merge-two-nodes (first-node second-node)
   (let ((first-node-symbol (node-symbol first-node)))
     (let ((second-node-symbol (node-symbol second-node)))
-      (create-node (merge-two-nodes-symbols first-node-symbol 
-                                            second-node-symbol)
-                   (+ (node-weight first-node) (node-weight second-node))
-                   first-node
-                   second-node))))
+      (let ((merged-node-symbol 
+             (merge-two-nodes-symbols first-node-symbol
+                                      second-node-symbol)))
+        (create-node merged-node-symbol
+                     (+ (node-weight first-node) (node-weight second-node))
+                     first-node
+                     second-node)))))
 
 ;; Unisce ricorsivamente la lista di nodi fornita e restituisce un unico
 ;; nodo radice
@@ -217,7 +219,7 @@
 ; (defparameter sw (list (cons "a" 8) (cons "b" 3) (cons "c" 1) 
 ;                        (cons "d" 1) (cons "e" 1) (cons "f" 1) 
 ;                        (cons "g" 1) (cons "\\n" 1)))
-(defparameter sw (list (cons (cons 'a nil) 8) (cons 'b 3) (cons 'c 1) 
+(defparameter sw (list (cons '(a) 8) (cons 'b 3) (cons 'c 1) 
                        (cons 'd 1) (cons 'e 1) (cons 'f 1) 
                        (cons 'g 1) (cons 'h 1)))
 (defparameter HT (hucodec-generate-huffman-tree sw))
