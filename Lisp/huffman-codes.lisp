@@ -35,16 +35,21 @@
 
 ;; Stampa ricorsivamente il nodo dato
 (defun print-node (node indentation)
-  (format t "~aSymbol: ~a Weight: ~a~%" 
-          indentation
-          (node-symbol node)
-          (node-weight node))
-  (cond ((node-left node)
-         (print-node (node-left node) 
-                     (concatenate 'string indentation "-"))))
-  (cond ((node-right node)
-         (print-node (node-right node)
-                     (concatenate 'string indentation "-")))))
+  (cond ((null node) nil)
+        (t (format t "~aSymbol: ~a Weight: ~a~%" 
+                   indentation
+                   (node-symbol node)
+                   (node-weight node))
+           (cond ((node-left node)
+                  (print-node (node-left node) 
+                              (concatenate 'string 
+                                           indentation 
+                                           "-"))))
+           (cond ((node-right node)
+                  (print-node (node-right node)
+                              (concatenate 'string 
+                                           indentation
+                                           "-")))))))
 
 ;; Converte una cons simbolo-peso in un nodo foglia
 (defun sw-to-node (sw)
@@ -115,7 +120,7 @@
 ;; Restituisce la lista che contiene la codifica del carattere fornito 
 ;; nell'albero di Huffman
 (defun get-symbol-encoding (symbol huffman-tree)
-  (cond ((null huffman-tree) nil)
+  (cond ((null huffman-tree) (error "Huffman tree is empty")) 
         ((equal (node-symbol huffman-tree) symbol) nil)
         (t
          (let ((new-branch (choose-encoding-branch symbol huffman-tree)))
@@ -156,7 +161,7 @@
 (defun read-list-from (input-stream)
   (let ((char (read-char input-stream nil 'eof)))
     (unless (eq char 'eof)
-      (cons (if (char= char #\NewLine) "\\n" (string char))
+      (cons (if (char= char #\NewLine) #\NewLine char)
             (read-list-from input-stream)))))
 
 ;; Ritorna il contenuto di un file come lista di simboli
@@ -171,7 +176,8 @@
 
 ;; Ritorna una lista che rappresenta la stringa codificata dai bit passati
 (defun hucodec-decode (bits huffman-tree)
-  (cond ((null bits) nil)
+  (cond ((null huffman-tree) (error "Huffman tree is empty"))
+        ((null bits) nil)
         ((not (listp bits)) (error "hucodec-decode argument must be a list"))
         (t (bits-to-symbols bits huffman-tree huffman-tree))))
 
@@ -192,17 +198,3 @@
   (cond ((= 0 bit) (node-left node))
         ((= 1 bit) (node-right node))
         (t (error "Bit not valid in given encoding"))))
-
-; TODO rimuovi queste righe servono per i test
-; (defparameter sw (list (cons 'a 8) (cons 'b 3) (cons 'c 1) 
-;                        (cons 'd 1) (cons 'e 1) (cons 'f 1) 
-;                        (cons 'g 1) (cons 'h 1)))
-; (defparameter sw (list (cons "a" 8) (cons "b" 3) (cons "c" 1) 
-;                        (cons "d" 1) (cons "e" 1) (cons "f" 1) 
-;                        (cons "g" 1) (cons "\\n" 1)))
-(defparameter sw (list (cons '(a) 8) (cons 'b 3) (cons 'c 1) 
-                       (cons 'd 1) (cons '(e) 1) (cons 'f 1) 
-                       (cons 'g 1) (cons 'h 1)))
-(defparameter HT (hucodec-generate-huffman-tree sw))
-(defparameter MESSAGE '(A B C A))
-
