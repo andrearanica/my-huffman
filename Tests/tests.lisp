@@ -65,7 +65,14 @@
                          (cons #\p 1) (cons #\q 1) (cons #\r 1)
                          (cons #\s 1) (cons #\t 1) (cons #\u 1)
                          (cons #\v 1) (cons #\w 1) (cons #\x 1)
-                         (cons #\y 1) (cons #\z 1) (cons #\NewLine 1)))
+                         (cons #\y 1) (cons #\z 1) (cons #\NewLine 1)
+                         (cons #\space 2)))
 
 (defparameter ht-7 (hucodec-generate-huffman-tree sw-7))
-(hucodec-encode-file "/home/andre/Documenti/GitHub/my-huffman/Lisp/test.txt" ht-7)
+(hucodec-encode-file "../Tests/file.txt" ht-7)
+
+;; 8. Test con messaggio lungo
+
+(defparameter message-8 (list #\c #\i #\a #\o #\space #\m #\o #\n #\d #\o #\space #\q #\u #\e #\s #\t #\o #\space #\e #\space #\u #\n #\space #\t #\e #\s #\t #\space #\p #\e #\r #\space #\l #\i #\s #\p))
+
+(equal message-8 (hucodec-decode (hucodec-encode message-8 ht-7) ht-7))
