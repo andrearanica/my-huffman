@@ -58,17 +58,7 @@
 
 ;; Restituisce il simbolo del nodo ottenuto combinando i simboli di due nodi
 (defun merge-two-nodes-symbols (first-node-symbol second-node-symbol)
-  (cond ((listp first-node-symbol) 
-         (cond 
-          ((listp second-node-symbol) 
-           (append first-node-symbol 
-                   second-node-symbol))
-          (t (append first-node-symbol
-                     (list second-node-symbol)))))
-        (t (cond ((listp second-node-symbol)
-                  (append (list first-node-symbol) second-node-symbol))
-                 (t (append (list first-node-symbol) 
-                            (list second-node-symbol)))))))
+  (cons first-node-symbol (cons second-node-symbol nil)))
 
 ;; Unisce i due nodi in un unico nodo che ha come simbolo i simboli dei
 ;; due nodi e come peso la somma dei pesi dei due nodi
@@ -115,21 +105,12 @@
 (defun choose-encoding-branch (symbol huffman-tree)
   (let ((left-tree (node-left huffman-tree))
         (right-tree (node-right huffman-tree)))
-    (let ((left-tree-symbol-list 
-           (if (listp (node-symbol left-tree)) 
-               (node-symbol left-tree)
-             (list (node-symbol left-tree))))
-          (right-tree-symbol-list
-           (if (listp (node-symbol right-tree))
-               (node-symbol right-tree)
-             (list (node-symbol right-tree)))))
-      (cond ((and left-tree 
-                  (is-item-in-list symbol left-tree-symbol-list))
-             0)
-            ((and right-tree 
-                  (is-item-in-list symbol right-tree-symbol-list)) 1)
-            (t (error "Symbol ~A is not defined in tree"
-                              symbol))))))
+    (let ((symbols-in-left-tree (get-symbols-from-huffman-tree left-tree))
+          (symbols-in-right-tree (get-symbols-from-huffman-tree right-tree)))
+      (cond ((is-item-in-list symbol symbols-in-left-tree) 0)
+            ((is-item-in-list symbol symbols-in-right-tree) 1)
+            (t (error "Symbol ~A is not defined in the given tree" 
+                      symbol))))))
 
 ;; Restituisce la lista che contiene la codifica del carattere fornito 
 ;; nell'albero di Huffman
@@ -220,7 +201,7 @@
 ;                        (cons "d" 1) (cons "e" 1) (cons "f" 1) 
 ;                        (cons "g" 1) (cons "\\n" 1)))
 (defparameter sw (list (cons '(a) 8) (cons 'b 3) (cons 'c 1) 
-                       (cons 'd 1) (cons 'e 1) (cons 'f 1) 
+                       (cons 'd 1) (cons '(e) 1) (cons 'f 1) 
                        (cons 'g 1) (cons 'h 1)))
 (defparameter HT (hucodec-generate-huffman-tree sw))
 (defparameter MESSAGE '(A B C A))
