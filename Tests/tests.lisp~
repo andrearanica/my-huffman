@@ -76,10 +76,3 @@
 (defparameter message-8 (list #\c #\i #\a #\o #\space #\m #\o #\n #\d #\o #\space #\q #\u #\e #\s #\t #\o #\space #\e #\space #\u #\n #\space #\t #\e #\s #\t #\space #\p #\e #\r #\space #\l #\i #\s #\p))
 
 (equal message-8 (hucodec-decode (hucodec-encode message-8 ht-7) ht-7))
-
-;; 9. Test con albero con un solo nodo
-
-(defparameter sw-9 (list (cons #\a 8)))
-(defparameter ht-9 (hucodec-generate-huffman-tree sw-9))
-(equal (list #\a) (hucodec-decode (hucodec-encode (list #\a) ht-9) ht-9))
-(defparameter table-9 (hucodec-generate-symbol-bits-table ht-9))

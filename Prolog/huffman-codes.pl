@@ -136,6 +136,7 @@ hucodec_generate_symbol_bits_table(Tree, SymbolBitsTable) :-
 %%% tree_to_symbols / 2
 %%% Predicato che restituisce la lista di simboli da cui è composto un albero
 
+tree_to_symbols(void, []) :- !.
 tree_to_symbols(node(Symbol, _, void, void), [Symbol]) :- !.
 tree_to_symbols(node(_, _, Left, Right), Symbols) :-
     !,
@@ -146,6 +147,7 @@ tree_to_symbols(node(_, _, Left, Right), Symbols) :-
 %%% symbols_to_symbols_table / 3
 %%% Predicato che converte una lista di simboli in istanze di sb nell'albero
 
+symbols_to_symbols_table([], _, []).
 symbols_to_symbols_table([S], Tree, [sb(S, Bits)]) :-
     !,
     symbol_to_bits_in_tree(S, Tree, Bits).
@@ -324,3 +326,17 @@ symbols_n_weights_4([
 :- symbols_n_weights_4(X),
     hucodec_generate_huffman_tree(X, Tree),
     hucodec_encode_file('../Tests/file.txt', Tree, _).
+
+%%% 5. Test con albero con un solo nodo
+
+symbols_n_weights_5([
+    sw(a, 8)
+]).
+
+message_5([a]).
+
+:- symbols_n_weights_5(X),
+    hucodec_generate_huffman_tree(X, Tree),
+    message_5(Message),
+    hucodec_encode(Message, Tree, EncodedMessage),
+    hucodec_decode(EncodedMessage, Tree, Message).
