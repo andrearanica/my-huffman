@@ -188,6 +188,7 @@ encode_list([Symbol | Symbols], Tree, EncodedList) :-
 %%% Predicato che codifica un file seguendo un albero
 
 hucodec_encode_file(FileName, Tree, EncodedFile) :-
+    exists_file(FileName),
     file_content(FileName, FileContent),
     hucodec_encode(FileContent, Tree, EncodedFile).
 

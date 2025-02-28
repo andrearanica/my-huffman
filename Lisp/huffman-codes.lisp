@@ -171,8 +171,9 @@
 
 ;; Ritorna la lista di bit che rappresentano la codifica del file
 (defun hucodec-encode-file (filename huffman-tree)
-  (let ((file-content-list (get-file-content-list filename)))
-    (hucodec-encode file-content-list huffman-tree)))
+  (cond ((not (probe-file filename)) (error "File '~A' doesn't exist" filename))
+        (t (let ((file-content-list (get-file-content-list filename)))
+             (hucodec-encode file-content-list huffman-tree)))))
 
 ;; Ritorna una lista che rappresenta la stringa codificata dai bit passati
 (defun hucodec-decode (bits huffman-tree)
