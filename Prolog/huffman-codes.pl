@@ -9,7 +9,7 @@
 hucodec_generate_huffman_tree(SymbolsNWeights, HuffmanTree) :-
     sw_to_nodes(SymbolsNWeights, Nodes),
     merge_sort(Nodes, SortedNodes),
-    merge_nodes(SortedNodes, [HuffmanTree]).
+    merge_nodes(SortedNodes, HuffmanTree).
 
 %%% hucodec_print_huffman_tree / 1
 %%% Predicato che stampa a schermo un albero di Huffman passato come parametro
@@ -21,7 +21,7 @@ hucodec_print_huffman_tree(HuffmanTree) :-
 %%% Predicato che converte una lista di coppie in un insieme di nodi foglie, per
 %%% poter generare l\'albero corrispondente 
 
-sw_to_nodes([], []).
+sw_to_nodes([], []) :- !.
 sw_to_nodes([sw(S, W) | Xs], [node(S, W, void, void) | Zs]) :-
     sw_to_nodes(Xs, Zs).
 
@@ -30,8 +30,8 @@ sw_to_nodes([sw(S, W) | Xs], [node(S, W, void, void) | Zs]) :-
 %%% nodo, che conterrà come simbolo una lista con tutti i simboli e come peso la
 %%% somma dei pesi dei nodi
 
-merge_nodes([], []) :- !.
-merge_nodes([X], [X]) :- !.
+merge_nodes([], void) :- !.
+merge_nodes([X], X) :- !.
 merge_nodes([FirstNode,SecondNode | RemainingNodes], ListWithMergedNodes) :- 
     merge_two_nodes(FirstNode, SecondNode, MergedNode), 
     ListWithTwoMergedNodes = [MergedNode | RemainingNodes],
@@ -242,6 +242,7 @@ merge_sort(List, Sorted) :-
     divide(List, L1, L2),
     merge_sort(L1, Sorted1),
     merge_sort(L2, Sorted2),
+    !,
     merge(Sorted1, Sorted2, Sorted).
 
 % divide / 3
@@ -268,21 +269,58 @@ merge([node(X, N, XLeft, XRight) | T1], [node(Y, M, YLeft, YRight) | T2],
     merge([node(X, N, XLeft, XRight) | T1], T2, T),
     !.
 
-%%% symbols_n_weights / 1
-%%% Predicato che definisce dei simboli con i relativi pesi da usare come tests
+%%% 1. Test con simboli semplici
 
-symbols_n_weights([
-    sw([a], 8),
+symbols_n_weights_1([
+    sw(a, 8),
     sw(b, 3),
     sw(c, 1),
     sw(d, 1),
     sw(e, 1),
     sw(f, 1),
     sw(g, 1),
-    sw([h], 1)
+    sw(h, 1)
 ]).
 
-%%% message / 1
-%%% Predicato che definisce dei messaggi di prova da usare come test
+message_1([a, b, c]).
 
-message([a, b, c]).
+:- symbols_n_weights_1(X),
+    message_1(M),
+    hucodec_generate_huffman_tree(X, Tree),
+    hucodec_encode(M, Tree, EncodedMessage),
+    hucodec_decode(EncodedMessage, Tree, M).
+
+%%% 2. Test con liste come simboli
+
+symbols_n_weights_2([
+    sw([a], 8),
+    sw([b], 3),
+    sw([], 1)
+]).
+
+message_2([[a], [b], [], [a]]).
+
+:- symbols_n_weights_2(X),
+    message_2(M),
+    hucodec_generate_huffman_tree(X, Tree),
+    hucodec_encode(M, Tree, EncodedMessage),
+    hucodec_decode(EncodedMessage, Tree, M).
+
+%%% 3. Test con albero vuoto
+
+symbols_n_weights_3([]).
+:- symbols_n_weights_3(X),
+    hucodec_generate_huffman_tree(X, _).
+
+%%% 4. Test con file
+
+symbols_n_weights_4([
+    sw(a, 8),
+    sw(b, 3),
+    sw(c, 1),
+    sw('\n', 1)
+]).
+
+:- symbols_n_weights_4(X),
+    hucodec_generate_huffman_tree(X, Tree),
+    hucodec_encode_file('../Tests/file.txt', Tree, _).
