@@ -77,4 +77,4 @@
       (format t "ERRORE: Il file ~A non esiste.~%" filename)))
 
 ;; Esegui il test con un file di esempio (assicurati che esista questo file)
-(test-hucodec-encode-file "/home/andre/Documenti/GitHub/my-huffman/Test/file.txt")
+(test-hucodec-encode-file "/home/andre/Documenti/GitHub/my-huffman/Tests/file.txt")

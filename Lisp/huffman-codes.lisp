@@ -89,7 +89,6 @@
                             (cadr sorted-nodes))))
                (merge-nodes (cons merged (cddr sorted-nodes))))))))
 
-
 ;; Genera l'albero di Huffman per la lista di cons simbolo-peso fornita
 (defun hucodec-generate-huffman-tree (sw-list)
   (cond ((equal sw-list nil) (error "Symbols-n-weights list cannot be empty"))
@@ -98,8 +97,13 @@
            (merge-nodes nodes)))))
 
 ;; Stampa un albero di Huffman data la sua radice
-(defun hucodec-print-huffman-tree (tree)
-  (print-node tree ""))
+(defun hucodec-print-huffman-tree (tree &optional (indent-level 0))
+  (print-node tree (scale-char "-" indent-level)))
+
+;; Ritorna una stringa formata da n volte un carattere
+(defun scale-char (char n)
+  (cond ((equal n 0) "")
+        (t (concatenate 'string char (scale-char char (- n 1))))))
 
 ;; Ritorna se l'elemento e' presente nella lista (analogo a member
 ;; ma funziona anche per le stringhe)
@@ -195,7 +199,8 @@
         ((and (leaf-p node) (not (equal node root))) 
          (cons (node-symbol node) (bits-to-symbols bits root root)))
         ((and (null bits) (equal node root)) nil)
-        ((and (null bits) (not (equal node root))) (error "Given encoding is not complete"))
+        ((and (null bits) (not (equal node root))) 
+         (error "Given encoding is not complete"))
         (t 
          (let ((next-branch (choose-branch (car bits) node)))
            (if (equal node next-branch) 
