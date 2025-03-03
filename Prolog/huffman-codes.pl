@@ -7,6 +7,7 @@
 %%% coppie simbolo-peso
 
 hucodec_generate_huffman_tree(SymbolsNWeights, HuffmanTree) :-
+    SymbolsNWeights \= [],
     sw_to_nodes(SymbolsNWeights, Nodes),
     merge_sort(Nodes, SortedNodes),
     merge_nodes(SortedNodes, HuffmanTree).
@@ -150,23 +151,27 @@ tree_to_symbols(node(_, _, Left, Right), Symbols) :-
 symbols_to_symbols_table([], _, []).
 symbols_to_symbols_table([S], Tree, [sb(S, Bits)]) :-
     !,
-    symbol_to_bits_in_tree(S, Tree, Bits).
+    symbol_to_bits_in_tree(S, Tree, Bits, Tree).
 symbols_to_symbols_table([S | Ss], Tree, [sb(S, Bits) | Sbs]) :-
-    symbol_to_bits_in_tree(S, Tree, Bits),
+    symbol_to_bits_in_tree(S, Tree, Bits, Tree),
     symbols_to_symbols_table(Ss, Tree, Sbs).
 
 %%% symbol_to_bits_in_tree / 3
 %%% Predicato che trova la codifica binaria di un simbolo percorrendo un albero
 
-symbol_to_bits_in_tree(Symbol, node(Symbol, _, void, void), []) :- !.
-symbol_to_bits_in_tree(Symbol, node(_, _, Left, _), Encoding) :-
-    symbol_to_bits_in_tree(Symbol, Left, PartialEncoding),
-    append([0], PartialEncoding, Encoding),
+symbol_to_bits_in_tree(Symbol, Node, [none], Node) :-
+    Node = node(Symbol, _, void, void),
     !.
-symbol_to_bits_in_tree(Symbol, node(_, _, _, Right), Encoding) :-
-    symbol_to_bits_in_tree(Symbol, Right, PartialEncoding),
-    append([1], PartialEncoding, Encoding),
+symbol_to_bits_in_tree(Symbol, Node, [], Root) :-
+    Node \= Root,
+    Node = node(Symbol, _, void, void),
     !.
+symbol_to_bits_in_tree(Symbol, node(_, _, Left, _), Encoding, Root) :-
+    symbol_to_bits_in_tree(Symbol, Left, PartialEncoding, Root),
+    append([0], PartialEncoding, Encoding).
+symbol_to_bits_in_tree(Symbol, node(_, _, _, Right), Encoding, Root) :-
+    symbol_to_bits_in_tree(Symbol, Right, PartialEncoding, Root),
+    append([1], PartialEncoding, Encoding).
 
 %%% hucodec_encode / 3
 %%% Predicato che genera la codifica di un messaggio seguendo un albero
@@ -178,9 +183,9 @@ hucodec_encode(MessageList, Tree, Bits) :-
 %%% encode_list / 3
 %%% Predicato che restituisce le codifiche degli elementi della lista fornita
 
-encode_list([], _, []).
+encode_list([], _, []) :- !.
 encode_list([Symbol | Symbols], Tree, EncodedList) :-
-    symbol_to_bits_in_tree(Symbol, Tree, FirstSymbleBits),
+    symbol_to_bits_in_tree(Symbol, Tree, FirstSymbleBits, Tree),
     encode_list(Symbols, Tree, OtherSymblesBits),
     append(FirstSymbleBits, OtherSymblesBits, EncodedList).
 
@@ -224,15 +229,29 @@ hucodec_decode(Bits, Tree, Symbols) :-
 %%% Predicato che converte una lista di bit nei corrispondenti simboli, avendo
 %%% sia il nodo corrente in cui cercare sia la radice dell'intero albero
 
-bits_to_symbols([], Root, [], Root) :- !.
-bits_to_symbols(Bits, node(Symbol, _, void, void), Symbols, Root) :-
+bits_to_symbols([], Node, [Symbol], Root) :-
+    Node \= Root,
+    !,
+    Node = node(Symbol, _, void, void).
+bits_to_symbols([], Node, [], Root) :-
+    Node = Root,
+    !.
+bits_to_symbols([none | Bits], Node, Symbols, Node) :-
+    !,
+    Node = node(Symbol, _, _, _),
+    bits_to_symbols(Bits, Node, OtherSymbols, Node),
+    append([Symbol], OtherSymbols, Symbols).
+bits_to_symbols(Bits, Node, Symbols, Root) :-
+    Node = node(Symbol, _, void, void),
     !,
     bits_to_symbols(Bits, Root, OtherSymbols, Root),
     append([Symbol], OtherSymbols, Symbols).
-bits_to_symbols([0 | Bits], node(_, _, Left, _), Symbols, Root) :-
+bits_to_symbols([0 | Bits], Node, Symbols, Root) :-
+    Node = node(_, _, Left, _),
     !,
     bits_to_symbols(Bits, Left, Symbols, Root).
-bits_to_symbols([1 | Bits], node(_, _, _, Right), Symbols, Root) :-
+bits_to_symbols([1 | Bits], Node, Symbols, Root) :-
+    Node = node(_, _, _, Right),
     !,
     bits_to_symbols(Bits, Right, Symbols, Root).
 
@@ -309,19 +328,20 @@ message_2([[a], [b], [], [a]]).
     hucodec_encode(M, Tree, EncodedMessage),
     hucodec_decode(EncodedMessage, Tree, M).
 
-%%% 3. Test con albero vuoto
+%%% 3. Test con albero vuoto (non va bene, deve ritornare false)
 
-symbols_n_weights_3([]).
+/*symbols_n_weights_3([]).
 :- symbols_n_weights_3(X),
-    hucodec_generate_huffman_tree(X, _).
+    hucodec_generate_huffman_tree(X, _).*/
 
 %%% 4. Test con file
 
 symbols_n_weights_4([
-    sw(a, 8),
+    sw('a', 8),
     sw(b, 3),
     sw(c, 1),
-    sw('\n', 1)
+    sw('\n', 1),
+    sw(' ', 1)
 ]).
 
 :- symbols_n_weights_4(X),
@@ -334,7 +354,7 @@ symbols_n_weights_5([
     sw(a, 8)
 ]).
 
-message_5([a]).
+message_5([a, a]).
 
 :- symbols_n_weights_5(X),
     hucodec_generate_huffman_tree(X, Tree),
