@@ -166,12 +166,16 @@ symbol_to_bits_in_tree(Symbol, Node, [], Root) :-
     Node \= Root,
     Node = node(Symbol, _, void, void),
     !.
-symbol_to_bits_in_tree(Symbol, node(_, _, Left, _), Encoding, Root) :-
+symbol_to_bits_in_tree(Symbol, Node, Encoding, Root) :-
+    Node = node(_, _, Left, _),
     symbol_to_bits_in_tree(Symbol, Left, PartialEncoding, Root),
-    append([0], PartialEncoding, Encoding).
-symbol_to_bits_in_tree(Symbol, node(_, _, _, Right), Encoding, Root) :-
+    append([0], PartialEncoding, Encoding),
+    !.
+symbol_to_bits_in_tree(Symbol, Node, Encoding, Root) :-
+    Node = node(_, _, _, Right),
     symbol_to_bits_in_tree(Symbol, Right, PartialEncoding, Root),
-    append([1], PartialEncoding, Encoding).
+    append([1], PartialEncoding, Encoding),
+    !.
 
 %%% hucodec_encode / 3
 %%% Predicato che genera la codifica di un messaggio seguendo un albero
@@ -351,10 +355,10 @@ symbols_n_weights_4([
 %%% 5. Test con albero con un solo nodo
 
 symbols_n_weights_5([
-    sw(a, 8)
+    sw([a], 8)
 ]).
 
-message_5([a, a]).
+message_5([[a], [a]]).
 
 :- symbols_n_weights_5(X),
     hucodec_generate_huffman_tree(X, Tree),
