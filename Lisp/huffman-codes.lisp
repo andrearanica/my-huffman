@@ -92,8 +92,10 @@
 
 ;; Genera l'albero di Huffman per la lista di cons simbolo-peso fornita
 (defun hucodec-generate-huffman-tree (sw-list)
-  (let ((nodes (sw-list-to-nodes sw-list)))
-      (merge-nodes nodes)))
+  (cond ((equal sw-list nil) (error "Symbols-n-weights list cannot be empty"))
+        (t
+         (let ((nodes (sw-list-to-nodes sw-list)))
+           (merge-nodes nodes)))))
 
 ;; Stampa un albero di Huffman data la sua radice
 (defun hucodec-print-huffman-tree (tree)
@@ -119,14 +121,18 @@
 
 ;; Restituisce la lista che contiene la codifica del carattere fornito 
 ;; nell'albero di Huffman
-(defun get-symbol-encoding (symbol huffman-tree)
-  (cond ((null huffman-tree) (error "Huffman tree is empty")) 
-        ((equal (node-symbol huffman-tree) symbol) nil)
+(defun get-symbol-encoding (symbol node root)
+  (cond ((null node) (error "Huffman tree is empty"))
+        ((and 
+          (equal (node-symbol node) symbol)
+          (leaf-p root))
+         '(none))             ; This case handles ht with single node
+        ((equal (node-symbol node) symbol) nil)
         (t
-         (let ((new-branch (choose-encoding-branch symbol huffman-tree)))
-           (if (= new-branch 1)
-               (cons 1 (get-symbol-encoding symbol (node-right huffman-tree)))
-             (cons 0 (get-symbol-encoding symbol (node-left huffman-tree))))))))
+         (let ((new-branch (choose-encoding-branch symbol node)))
+           (if (equal new-branch 1)
+               (cons 1 (get-symbol-encoding symbol (node-right node) root))
+             (cons 0 (get-symbol-encoding symbol (node-left node) root)))))))
 
 ;; Ritorna tutti i simboli presenti nell'albero di Huffman dato
 (defun get-symbols-from-huffman-tree (huffman-tree)
@@ -146,7 +152,7 @@
   (if (null symbols)
       nil
     (cons (list (car symbols)
-                (get-symbol-encoding (car symbols) huffman-tree))
+                (get-symbol-encoding (car symbols) huffman-tree huffman-tree))
           (generate-symbol-bits-table (cdr symbols) huffman-tree))))
 
 ;; Ritorna una lista di bit che rappresentano la codifica del messaggio
@@ -154,7 +160,7 @@
   (cond ((null message) nil)
         ((not (listp message)) (error 
                                 "hucodec-encode argument must a be a list"))
-        (t (append (get-symbol-encoding (car message) huffman-tree)
+        (t (append (get-symbol-encoding (car message) huffman-tree huffman-tree)
                    (hucodec-encode (cdr message) huffman-tree)))))
 
 ;; Ritorna una lista che contiene il contenuto dello stream passato
@@ -178,24 +184,28 @@
 ;; Ritorna una lista che rappresenta la stringa codificata dai bit passati
 (defun hucodec-decode (bits huffman-tree)
   (cond ((null huffman-tree) (error "Huffman tree is empty"))
-        ((null bits) nil)
         ((not (listp bits)) (error "hucodec-decode argument must be a list"))
         (t (bits-to-symbols bits huffman-tree huffman-tree))))
 
 ;; Converte la lista di bit nei simboli corrispondenti, ritornando 
 ;; ricorsivamente alla radice quando finisce in una foglia
 (defun bits-to-symbols (bits node root)
-  (cond ((and (leaf-p node) (null bits))
+  (cond ((and (leaf-p node) (null bits) (not (equal node root)))
          (cons (node-symbol node) nil))
-        ((leaf-p node) 
+        ((and (leaf-p node) (not (equal node root))) 
          (cons (node-symbol node) (bits-to-symbols bits root root)))
-        ((null bits) (error "Given encoding is not complete"))
+        ((and (null bits) (equal node root)) nil)
+        ((and (null bits) (not (equal node root))) (error "Given encoding is not complete"))
         (t 
          (let ((next-branch (choose-branch (car bits) node)))
-           (bits-to-symbols (cdr bits) next-branch root)))))
+           (if (equal node next-branch) 
+                 (cons (node-symbol node)
+                       (bits-to-symbols (cdr bits) next-branch root))
+             (bits-to-symbols (cdr bits) next-branch root))))))
 
 ;; Ritorna quale figlio del nodo seguire per continuare la decodifica
 (defun choose-branch (bit node)
-  (cond ((= 0 bit) (node-left node))
-        ((= 1 bit) (node-right node))
+  (cond ((equal 'none bit) node)        ; This case handles ht with a single node
+        ((equal 0 bit) (node-left node))
+        ((equal 1 bit) (node-right node))
         (t (error "Bit not valid in given encoding"))))
