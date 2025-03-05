@@ -228,8 +228,10 @@ read_stream(Stream, '') :-
 %%% interno dell'albero fornito
 
 hucodec_decode([], Tree, Symbols) :-
+    is_leaf(Tree),
     !,
     bits_to_symbols([none], Tree, Symbols, Tree).
+hucodec_decode([], _, []) :- !.
 hucodec_decode(Bits, Tree, Symbols) :-
     bits_list_is_valid(Bits),
     bits_to_symbols(Bits, Tree, Symbols, Tree).
@@ -258,7 +260,7 @@ bits_to_symbols([], Node, [], Root) :-
     !.
 bits_to_symbols([none | Bits], Node, Symbols, Node) :-
     !,
-    Node = node(Symbol, _, _, _),
+    Node = node(Symbol, _, void, void),
     bits_to_symbols(Bits, Node, OtherSymbols, Node),
     append([Symbol], OtherSymbols, Symbols).
 bits_to_symbols(Bits, Node, Symbols, Root) :-

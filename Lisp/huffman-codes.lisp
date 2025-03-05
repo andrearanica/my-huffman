@@ -1,6 +1,6 @@
-;;; Ranica Andrea 909424
-
 ;;; -*- Mode: Lisp -*-
+
+;;; 909424 Ranica Andrea
 
 ;; Struct che rappresenta il nodo dell'albero di Huffman
 (defstruct node
@@ -163,7 +163,7 @@
 (defun hucodec-encode (message huffman-tree)
   (cond ((null message) nil)
         ((not (listp message)) (error 
-                                "hucodec-encode argument must a be a list"))
+                                "hucodec-encode argument must be a list"))
         (t (append (get-symbol-encoding (car message) huffman-tree huffman-tree)
                    (hucodec-encode (cdr message) huffman-tree)))))
 
@@ -189,6 +189,10 @@
 (defun hucodec-decode (bits huffman-tree)
   (cond ((null huffman-tree) (error "Huffman tree is empty"))
         ((not (listp bits)) (error "hucodec-decode argument must be a list"))
+        ((and (equal bits (list))
+              (leaf-p huffman-tree)) 
+         (bits-to-symbols '(none) huffman-tree huffman-tree))
+        ((equal bits (list)) nil)
         (t (bits-to-symbols bits huffman-tree huffman-tree))))
 
 ;; Converte la lista di bit nei simboli corrispondenti, ritornando 
@@ -210,7 +214,7 @@
 
 ;; Ritorna quale figlio del nodo seguire per continuare la decodifica
 (defun choose-branch (bit node)
-  (cond ((equal 'none bit) node)        ; This case handles ht with a single node
+  (cond ((and (equal 'none bit) (leaf-p node)) node)
         ((equal 0 bit) (node-left node))
         ((equal 1 bit) (node-right node))
-        (t (error "Bit not valid in given encoding"))))
+        (t (error "The given bits is not a valid encoding in current tree"))))
