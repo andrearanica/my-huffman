@@ -216,7 +216,8 @@ file_content(FileName, ListFileContent) :-
 read_stream(Stream, Content) :-
     \+ at_end_of_stream(Stream),
     !,
-    get_char(Stream, Char),
+    get_code(Stream, Code),
+    char_code(Char, Code),
     read_stream(Stream, OtherChars),
     atom_concat(Char, OtherChars, Content).
 read_stream(Stream, '') :- 
@@ -226,8 +227,23 @@ read_stream(Stream, '') :-
 %%% Predicato che decodifica una lista di bit nei corrispondenti simboli all'
 %%% interno dell'albero fornito
 
+hucodec_decode([], Tree, Symbols) :-
+    !,
+    bits_to_symbols([none], Tree, Symbols, Tree).
 hucodec_decode(Bits, Tree, Symbols) :-
+    bits_list_is_valid(Bits),
     bits_to_symbols(Bits, Tree, Symbols, Tree).
+
+%%% bits_list_is_valid / 1
+%%% Predicato che ritorna true se la lista e' formata solo da 0 e 1
+
+bits_list_is_valid([]).
+bits_list_is_valid([0 | Xs]) :-
+    bits_list_is_valid(Xs).
+bits_list_is_valid([1 | Xs]) :-
+    bits_list_is_valid(Xs).
+bits_list_is_valid([none | Xs]) :-
+    bits_list_is_valid(Xs).
 
 %%% bits_to_symbols / 4
 %%% Predicato che converte una lista di bit nei corrispondenti simboli, avendo
@@ -345,7 +361,8 @@ symbols_n_weights_4([
     sw(b, 3),
     sw(c, 1),
     sw('\n', 1),
-    sw(' ', 1)
+    sw(' ', 1),
+    sw('\t', 1)
 ]).
 
 :- symbols_n_weights_4(X),

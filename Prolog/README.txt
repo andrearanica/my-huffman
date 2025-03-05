@@ -13,8 +13,11 @@ Il predicato hucodec_encode / 3 permette di codificare un messaggio, che è rap-
 presentato come una lista di simboli. Questi simboli possono essere atomi oppure 
 simboli più complessi, come liste. Il predicato è vero se il terzo parametro è 
 una lista di bit che sono la codifica del messaggio nell'albero fornito.
-Il predicato hucodec_encode_file / 3 funziona in modo analigo, ma accetta come
+Il predicato hucodec_encode_file / 3 funziona in modo analogo, ma accetta come
 primo parametro una stringa che contiene il percorso al file da codificare.
+Attenzione: il predicato considera il contenuto del file come caratteri, quindi
+per codificarne il contenuto è necessario definire nelle coppie simbolo-peso i
+caratteri contenuti all'interno del file, compresi i caratteri ' ' e '\n'.
 
 È inoltre presente il predicato hucodec_decode che è vero se il terzo parametro
 è il messaggio decodificato dei bit forniti nell'albero di Huffman passato come
