@@ -189,9 +189,9 @@
 (defun hucodec-decode (bits huffman-tree)
   (cond ((null huffman-tree) (error "Huffman tree is empty"))
         ((not (listp bits)) (error "hucodec-decode argument must be a list"))
-        ((and (equal bits (list))
-              (leaf-p huffman-tree)) 
-         (bits-to-symbols '(none) huffman-tree huffman-tree))
+        ;((and (equal bits (list))
+        ;      (leaf-p huffman-tree)) 
+        ;(bits-to-symbols '(none) huffman-tree huffman-tree))
         ((equal bits (list)) nil)
         (t (bits-to-symbols bits huffman-tree huffman-tree))))
 

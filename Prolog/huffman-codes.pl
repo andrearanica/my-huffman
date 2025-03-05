@@ -227,10 +227,6 @@ read_stream(Stream, '') :-
 %%% Predicato che decodifica una lista di bit nei corrispondenti simboli all'
 %%% interno dell'albero fornito
 
-hucodec_decode([], Tree, Symbols) :-
-    is_leaf(Tree),
-    !,
-    bits_to_symbols([none], Tree, Symbols, Tree).
 hucodec_decode([], _, []) :- !.
 hucodec_decode(Bits, Tree, Symbols) :-
     bits_list_is_valid(Bits),
@@ -316,39 +312,39 @@ merge([node(X, N, XLeft, XRight) | T1], [node(Y, M, YLeft, YRight) | T2],
 %%% 1. Test con simboli semplici
 
 symbols_n_weights_1([
-    sw(a, 8),
-    sw(b, 3),
-    sw(c, 1),
-    sw(d, 1),
-    sw(e, 1),
-    sw(f, 1),
-    sw(g, 1),
-    sw(h, 1)
-]).
+			   sw(a, 8),
+			   sw(b, 3),
+			   sw(c, 1),
+			   sw(d, 1),
+			   sw(e, 1),
+			   sw(f, 1),
+			   sw(g, 1),
+			   sw(h, 1)
+		       ]).
 
 message_1([a, b, c]).
 
 :- symbols_n_weights_1(X),
-    message_1(M),
-    hucodec_generate_huffman_tree(X, Tree),
-    hucodec_encode(M, Tree, EncodedMessage),
-    hucodec_decode(EncodedMessage, Tree, M).
+   message_1(M),
+   hucodec_generate_huffman_tree(X, Tree),
+   hucodec_encode(M, Tree, EncodedMessage),
+   hucodec_decode(EncodedMessage, Tree, M).
 
 %%% 2. Test con liste come simboli
 
 symbols_n_weights_2([
-    sw([a], 8),
-    sw([b], 3),
-    sw([], 1)
-]).
+			   sw([a], 8),
+			   sw([b], 3),
+			   sw([], 1)
+		       ]).
 
 message_2([[a], [b], [], [a]]).
 
 :- symbols_n_weights_2(X),
-    message_2(M),
-    hucodec_generate_huffman_tree(X, Tree),
-    hucodec_encode(M, Tree, EncodedMessage),
-    hucodec_decode(EncodedMessage, Tree, M).
+   message_2(M),
+   hucodec_generate_huffman_tree(X, Tree),
+   hucodec_encode(M, Tree, EncodedMessage),
+   hucodec_decode(EncodedMessage, Tree, M).
 
 %%% 3. Test con albero vuoto (non va bene, deve ritornare false)
 
@@ -359,28 +355,28 @@ message_2([[a], [b], [], [a]]).
 %%% 4. Test con file
 
 symbols_n_weights_4([
-    sw('a', 8),
-    sw(b, 3),
-    sw(c, 1),
-    sw('\n', 1),
-    sw(' ', 1),
-    sw('\t', 1)
-]).
+			   sw('a', 8),
+			   sw(b, 3),
+			   sw(c, 1),
+			   sw('\n', 1),
+			   sw(' ', 1),
+			   sw('\t', 1)
+		       ]).
 
 :- symbols_n_weights_4(X),
-    hucodec_generate_huffman_tree(X, Tree),
-    hucodec_encode_file('../Tests/file.txt', Tree, _).
+   hucodec_generate_huffman_tree(X, Tree),
+   hucodec_encode_file('../Tests/file.txt', Tree, _).
 
 %%% 5. Test con albero con un solo nodo
 
 symbols_n_weights_5([
-    sw([a], 8)
-]).
+			   sw([a], 8)
+		       ]).
 
 message_5([[a], [a]]).
 
 :- symbols_n_weights_5(X),
-    hucodec_generate_huffman_tree(X, Tree),
-    message_5(Message),
-    hucodec_encode(Message, Tree, EncodedMessage),
-    hucodec_decode(EncodedMessage, Tree, Message).
+   hucodec_generate_huffman_tree(X, Tree),
+   message_5(Message),
+   hucodec_encode(Message, Tree, EncodedMessage),
+   hucodec_decode(EncodedMessage, Tree, Message).
