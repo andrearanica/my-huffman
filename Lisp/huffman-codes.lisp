@@ -205,7 +205,7 @@
          (cons (node-symbol node) (bits-to-symbols bits root root)))
         ((and (null bits) (equal node root)) nil)
         ((and (null bits) (not (equal node root))) 
-         (error "Given encoding is not complete"))
+         (error "The given encoding is not complete"))
         (t 
          (let ((next-branch (choose-branch (car bits) node)))
            (if (equal node next-branch) 

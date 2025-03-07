@@ -1,6 +1,6 @@
-%%% 909424 Ranica Andrea
-
 %%%% -*- Mode: Prolog -*-
+
+%%% 909424 Ranica Andrea
 
 %%% hucodec_generate_huffman_tree / 2
 %%% Predicato che genera un albero di Huffman prendendo in input una lista di
@@ -39,24 +39,6 @@ merge_nodes([FirstNode,SecondNode | RemainingNodes], ListWithMergedNodes) :-
     merge_sort(ListWithTwoMergedNodes, SortedListWithTwoMergedNodes),
     merge_nodes(SortedListWithTwoMergedNodes, ListWithMergedNodes),
     !.
-
-%%% min_weight_in_sw_list / 2
-%%% Predicato che ritorna 2 nodi con peso minimo nella lista fornita
-
-min_weight_in_nodes([node(_, Weight, _, _)], Weight) :- !.
-min_weight_in_nodes([FirstNode | OtherNodes], MinWeight) :-
-    FirstNode = node(_, Weight, _, _),
-    !,
-    min_weight_in_nodes(OtherNodes, OtherNodesMinWeight),
-    min(Weight, OtherNodesMinWeight, MinWeight).
-
-%%% min / 3
-%%% Predicato che restituisce il minimo tra due atomi (interi)
-
-min(X, Y, X) :-
-    X =< Y, !.
-min(X, Y, Y) :- 
-    X > Y, !.
 
 %%% merge_nodes / 3
 %%% Predicato che prende due nodi e ne crea uno solo che abbia i due nodi come
@@ -275,7 +257,7 @@ bits_to_symbols([1 | Bits], Node, Symbols, Root) :-
     bits_to_symbols(Bits, Right, Symbols, Root).
 
 %%% merge_sort / 2
-%%% true if the second list is the first one sorted
+%%% Predicato che è vero se la seconda lista è la prima ma ordinata
 
 merge_sort([], []) :- !.
 merge_sort([X], [X]) :- !.
@@ -287,7 +269,8 @@ merge_sort(List, Sorted) :-
     merge(Sorted1, Sorted2, Sorted).
 
 %%% divide / 3
-%%% true if the first list is the first one splitted in two lists
+%%% Predicato che è vero se la seconda e terza lista sono una divisione della
+%%% prima
 
 divide([], [], []).
 divide([X], [X], []).
@@ -295,7 +278,8 @@ divide([X, Y | Rest], [X | L1], [Y | L2]) :-
     divide(Rest, L1, L2).
 
 %%% merge / 3
-%%% true if the third list is the sorted merge of the first two lists
+%%% Predicato che è vero se la terza lista è ottenuta con un merge delle prime
+%%% due
 
 merge([], L, L).
 merge(L, [], L).
