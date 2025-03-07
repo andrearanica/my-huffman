@@ -67,11 +67,10 @@
                          (cons #\s 1) (cons #\t 1) (cons #\u 1)
                          (cons #\v 1) (cons #\w 1) (cons #\x 1)
                          (cons #\y 1) (cons #\z 1) (cons #\NewLine 1)
-                         (cons #\space 2) (cons #\tab 1)))
+                         (cons #\space 2)))
 
-(defparameter file-path "/home/andre/Documenti/GitHub/my-huffman/Tests/file.txt")
 (defparameter ht-7 (hucodec-generate-huffman-tree sw-7))
-(defparameter encoded-message (hucodec-encode-file file-path ht-7))
+(hucodec-encode-file "/home/andre/Documenti/GitHub/my-huffman/Tests/file.txt" ht-7)
 
 ;; 8. Test con messaggio lungo
 

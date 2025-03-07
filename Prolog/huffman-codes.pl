@@ -1,6 +1,6 @@
-%%%% -*- Mode: Prolog -*-
-
 %%% 909424 Ranica Andrea
+
+%%%% -*- Mode: Prolog -*-
 
 %%% hucodec_generate_huffman_tree / 2
 %%% Predicato che genera un albero di Huffman prendendo in input una lista di
@@ -261,6 +261,7 @@ bits_to_symbols([none | Bits], Node, Symbols, Node) :-
     append([Symbol], OtherSymbols, Symbols).
 bits_to_symbols(Bits, Node, Symbols, Root) :-
     Node = node(Symbol, _, void, void),
+    Node \= Root,
     !,
     bits_to_symbols(Bits, Root, OtherSymbols, Root),
     append([Symbol], OtherSymbols, Symbols).

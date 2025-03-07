@@ -92,7 +92,6 @@
 ;; Genera l'albero di Huffman per la lista di cons simbolo-peso fornita
 (defun hucodec-generate-huffman-tree (sw-list)
   (cond ((equal sw-list nil) (error "Symbols-n-weights list cannot be empty"))
-        ((not (listp sw-list)) (error "Symbols-n-weights must be a list"))
         (t
          (let ((nodes (sw-list-to-nodes sw-list)))
            (merge-nodes nodes)))))
@@ -216,6 +215,6 @@
 ;; Ritorna quale figlio del nodo seguire per continuare la decodifica
 (defun choose-branch (bit node)
   (cond ((and (equal 'none bit) (leaf-p node)) node)
-        ((and (equal 0 bit) (not (null (node-left node)))) (node-left node))
-        ((and (equal 1 bit) (not (null (node-right node)))) (node-right node))
+        ((equal 0 bit) (node-left node))
+        ((equal 1 bit) (node-right node))
         (t (error "The given bits is not a valid encoding in current tree"))))
