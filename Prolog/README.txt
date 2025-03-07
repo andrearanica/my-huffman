@@ -17,7 +17,8 @@ Il predicato hucodec_encode_file / 3 funziona in modo analogo, ma accetta come
 primo parametro una stringa che contiene il percorso al file da codificare.
 Attenzione: il predicato considera il contenuto del file come caratteri, quindi
 per codificarne il contenuto è necessario definire nelle coppie simbolo-peso i
-caratteri contenuti all'interno del file, compresi i caratteri ' ' e '\n'.
+caratteri contenuti all'interno del file, compresi i caratteri ' ' e di escape
+(come '\n' o '\t').
 
 È inoltre presente il predicato hucodec_decode che è vero se il terzo parametro
 è il messaggio decodificato dei bit forniti nell'albero di Huffman passato come

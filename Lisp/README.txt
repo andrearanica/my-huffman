@@ -14,7 +14,8 @@ dell'albero con cui effettuare la codifica; restituisce una lista di bit.
 hucodec-encode-file, che funziona in modo analogo. 
 Importante: il contenuto del file è espresso come una lista di caratteri, per 
 questo è necessario definire i simboli dell'albero come caratteri. Ad esempio,
-possiamo definire le coppie come ((#\a . 8) (#\b . 2) ...)
+possiamo definire le coppie come ((#\a . 8) (#\b . 2) ...), e in particolare i
+caratteri di escape con #\Space e #\Tab.
 
 La funzione per decodificare una lista di bit è hucodec-decode / 2, e restitui-
 sce il messaggio decodificato a partire dalla lista di bit. Anche in questo caso

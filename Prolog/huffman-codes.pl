@@ -104,11 +104,6 @@ print_node(node(X, K, XLeft, XRight), Indentation) :-
     print_node(XLeft, NewIndentation),
     print_node(XRight, NewIndentation).
 
-%%% sb / 2
-%%% Predicato che associa un simbolo alla sua codifica
-
-sb(_, _).
-
 %%% hucodec_generate_symbol_bits_table / 2
 %%% Predicato che genera la tabella dei simboli per l'albero fornito
 
