@@ -36,7 +36,7 @@
 ;; Stampa ricorsivamente il nodo dato
 (defun print-node (node indentation)
   (cond ((null node) nil)
-        (t (format t "~aSymbol: ~a Weight: ~a~%" 
+        (t (format t "~aSymbol: ~S Weight: ~a~%" 
                    indentation
                    (node-symbol node)
                    (node-weight node))
@@ -121,7 +121,7 @@
           (symbols-in-right-tree (get-symbols-from-huffman-tree right-tree)))
       (cond ((is-item-in-list symbol symbols-in-left-tree) 0)
             ((is-item-in-list symbol symbols-in-right-tree) 1)
-            (t (error "Symbol ~A is not defined in the given tree" 
+            (t (error "Symbol ~S is not defined in the given tree" 
                       symbol))))))
 
 ;; Restituisce la lista che contiene la codifica del carattere fornito 

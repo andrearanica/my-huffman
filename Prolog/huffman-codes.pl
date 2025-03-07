@@ -286,16 +286,16 @@ merge_sort(List, Sorted) :-
     !,
     merge(Sorted1, Sorted2, Sorted).
 
-% divide / 3
-% true if the first list is the first one splitted in two lists
+%%% divide / 3
+%%% true if the first list is the first one splitted in two lists
 
 divide([], [], []).
 divide([X], [X], []).
 divide([X, Y | Rest], [X | L1], [Y | L2]) :-
     divide(Rest, L1, L2).
 
-% merge / 3
-% true if the third list is the sorted merge of the first two lists
+%%% merge / 3
+%%% true if the third list is the sorted merge of the first two lists
 
 merge([], L, L).
 merge(L, [], L).
@@ -309,75 +309,3 @@ merge([node(X, N, XLeft, XRight) | T1], [node(Y, M, YLeft, YRight) | T2],
     N > M,
     merge([node(X, N, XLeft, XRight) | T1], T2, T),
     !.
-
-%%% 1. Test con simboli semplici
-
-symbols_n_weights_1([
-			   sw(a, 8),
-			   sw(b, 3),
-			   sw(c, 1),
-			   sw(d, 1),
-			   sw(e, 1),
-			   sw(f, 1),
-			   sw(g, 1),
-			   sw(h, 1)
-		       ]).
-
-message_1([a, b, c]).
-
-:- symbols_n_weights_1(X),
-   message_1(M),
-   hucodec_generate_huffman_tree(X, Tree),
-   hucodec_encode(M, Tree, EncodedMessage),
-   hucodec_decode(EncodedMessage, Tree, M).
-
-%%% 2. Test con liste come simboli
-
-symbols_n_weights_2([
-			   sw([a], 8),
-			   sw([b], 3),
-			   sw([], 1)
-		       ]).
-
-message_2([[a], [b], [], [a]]).
-
-:- symbols_n_weights_2(X),
-   message_2(M),
-   hucodec_generate_huffman_tree(X, Tree),
-   hucodec_encode(M, Tree, EncodedMessage),
-   hucodec_decode(EncodedMessage, Tree, M).
-
-%%% 3. Test con albero vuoto (non va bene, deve ritornare false)
-
-/*symbols_n_weights_3([]).
-:- symbols_n_weights_3(X),
-    hucodec_generate_huffman_tree(X, _).*/
-
-%%% 4. Test con file
-
-symbols_n_weights_4([
-			   sw('a', 8),
-			   sw(b, 3),
-			   sw(c, 1),
-			   sw('\n', 1),
-			   sw(' ', 1),
-			   sw('\t', 1)
-		       ]).
-
-:- symbols_n_weights_4(X),
-   hucodec_generate_huffman_tree(X, Tree),
-   hucodec_encode_file('../Tests/file.txt', Tree, _).
-
-%%% 5. Test con albero con un solo nodo
-
-symbols_n_weights_5([
-			   sw([a], 8)
-		       ]).
-
-message_5([[a], [a]]).
-
-:- symbols_n_weights_5(X),
-   hucodec_generate_huffman_tree(X, Tree),
-   message_5(Message),
-   hucodec_encode(Message, Tree, EncodedMessage),
-   hucodec_decode(EncodedMessage, Tree, Message).
